@@ -1,84 +1,143 @@
 # PlaceIT — Placement Cell Management System
 
-A full-featured placement cell web application built with **Flask + SQLite**.
+A full-stack web application built for college placement cells to manage students, companies, job postings, and applications — all in one place.
+
+🌐 **Live Demo:** [placement-cell-6b63.onrender.com](https://placement-cell-6b63.onrender.com)
+
+---
+
+## About
+
+PlaceIT streamlines the entire campus placement process. Students can build profiles and apply for jobs, companies can post openings and manage applicants, and placement coordinators get a complete overview through the admin dashboard.
+
+---
 
 ## Features
 
-### 👩‍🎓 Students
-- Register and login
-- Complete profile (CGPA, branch, year, skills, bio, LinkedIn, GitHub)
+### 🎓 Students
+- Register and build a detailed profile (CGPA, branch, skills, bio)
 - Upload resume (PDF/DOC)
-- Browse and apply for jobs/internships
-- Track application status in real-time
-- Dashboard with placement stats
+- Browse full-time jobs and internships
+- Apply with one click
+- Track application status in real-time (Applied → Shortlisted → Selected → Offered)
 
 ### 🏢 Companies
 - Register and manage company profile
-- Post full-time jobs & internships (with CGPA cutoff, deadline, salary)
-- View all applicants per job
-- Update applicant status (Applied → Shortlisted → Selected → Offered)
+- Post job/internship listings with CGPA cutoff, salary, and deadline
+- View and manage all applicants per job
+- Update applicant status and add notes
 - Open/close job listings
 
 ### 🛡️ Admin
-- Full placement statistics dashboard
-- View all students, companies, and jobs
-- Monitor placement rate
-- Enable/disable users
+- Overview dashboard with placement statistics
+- Monitor placement rate, active jobs, total applications
+- View and manage all students and companies
+- Enable/disable user accounts
+
+---
 
 ## Tech Stack
-- **Backend**: Flask (Python 3)
-- **Database**: SQLite (via sqlite3)
-- **Frontend**: Jinja2 templates, custom CSS (Syne + DM Sans fonts)
-- **Auth**: Session-based with SHA-256 password hashing
 
-## Setup & Run
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python, Flask |
+| Database | PostgreSQL (Supabase) |
+| Frontend | Jinja2, HTML, CSS, JavaScript |
+| Hosting | Render |
+| Auth | Session-based with SHA-256 hashing |
+| File Upload | Werkzeug |
 
-### 1. Install dependencies
-```bash
-pip install flask
+---
+
+## Project Structure
+
+```
+placement_cell/
+├── app.py                  # Main Flask application & all routes
+├── database.py             # DB connection & schema initialization
+├── requirements.txt        # Python dependencies
+├── Procfile                # Render start command
+├── static/
+│   └── uploads/
+│       └── resumes/        # Uploaded student resumes
+└── templates/
+    ├── base.html           # Base layout with nav & styles
+    ├── index.html          # Landing page
+    ├── auth/
+    │   ├── login.html
+    │   └── register.html
+    ├── student/
+    │   ├── dashboard.html
+    │   ├── profile.html
+    │   └── jobs.html
+    ├── company/
+    │   ├── dashboard.html
+    │   ├── profile.html
+    │   ├── post_job.html
+    │   └── applicants.html
+    └── admin/
+        ├── dashboard.html
+        ├── students.html
+        ├── companies.html
+        └── jobs.html
 ```
 
-### 2. Run the application
+---
+
+## Local Setup
+
+### 1. Clone the repository
 ```bash
-cd placement_cell
+git clone https://github.com/sathiya-shree/placement-cell.git
+cd placement-cell
+```
+
+### 2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Set environment variable
+Create a `.env` file:
+```
+DATABASE_URL=postgresql://your_connection_string_here
+```
+
+### 4. Run the app
+```bash
 python app.py
 ```
 
-### 3. Open in browser
-```
-http://localhost:5000
-```
+Open `http://localhost:5000`
+
+---
+
+## Deployment
+
+Hosted on **Render** with **Supabase PostgreSQL** as the database.
+
+- Render auto-deploys on every push to `main`
+- Database tables are created automatically on first startup via `init_db()`
+- Environment variable `DATABASE_URL` is set in Render's dashboard
+
+---
 
 ## Demo Credentials
 
-| Role    | Email                    | Password  |
-|---------|--------------------------|-----------|
-| Admin   | admin@placement.edu      | admin123  |
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@placement.edu | admin123 |
 
-Register new students and companies via the registration page.
+Register new student and company accounts via the `/register` page.
 
-## Project Structure
-```
-placement_cell/
-├── app.py              # Main Flask application
-├── database.py         # DB schema & initialization
-├── placement.db        # SQLite database (auto-created)
-├── static/
-│   └── uploads/
-│       └── resumes/    # Uploaded resume files
-└── templates/
-    ├── base.html       # Base layout
-    ├── index.html      # Landing page
-    ├── auth/           # Login, Register
-    ├── student/        # Dashboard, Profile, Jobs
-    ├── company/        # Dashboard, Post Job, Applicants
-    └── admin/          # Dashboard, Students, Companies, Jobs
-```
+---
 
-## Database Schema
-- `users` — all users (student/company/admin)
-- `student_profiles` — extended student info
-- `company_profiles` — company details
-- `jobs` — job/internship postings
-- `applications` — student applications
-- `interviews` — scheduled interviews
+## Screenshots
+
+> Landing page, student dashboard, job listings, company applicant management, admin overview
+
+---
+
+## License
+
+MIT License — free to use and modify for educational purposes.
