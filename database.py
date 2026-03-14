@@ -3,8 +3,7 @@ import psycopg2.extras
 import os
 import hashlib
 
-DATABASE_URL = os.environ.get("postgresql://postgres:Shree@030204@db.kxppkbfyatidwysixeox.supabase.co:5432/postgres")
-
+DATABASE_URL = os.environ.get("DATABASE_URL")
 def get_db():
     conn = psycopg2.connect(DATABASE_URL)
     conn.cursor_factory = psycopg2.extras.RealDictCursor
