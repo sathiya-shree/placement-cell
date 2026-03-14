@@ -9,6 +9,13 @@ app.secret_key = "placement_cell_secret_2024"
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'static', 'uploads', 'resumes')
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB
 
+with app.app_context():
+    try:
+        init_db()
+        print("✅ DB initialized")
+    except Exception as e:
+        print("❌ DB init error:", e)
+
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
 
 def allowed_file(filename):
