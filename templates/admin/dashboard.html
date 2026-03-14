@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — PlaceIT{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Admin Panel</div>
+      </div>
+      <div class="sidebar-label">Overview</div>
+      <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link active"><span class="icon">📊</span> Dashboard</a>
+      <div class="sidebar-label" style="margin-top:1rem;">Manage</div>
+      <a href="{{ url_for('admin_students') }}" class="sidebar-link"><span class="icon">🎓</span> Students</a>
+      <a href="{{ url_for('admin_companies') }}" class="sidebar-link"><span class="icon">🏢</span> Companies</a>
+      <a href="{{ url_for('admin_jobs') }}" class="sidebar-link"><span class="icon">💼</span> Jobs</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Placement Overview</div>
+          <div class="page-sub">Real-time placement statistics</div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;">
+        <div class="stat-card">
+          <div class="stat-icon blue">🎓</div>
+          <div><div class="stat-num">{{ stats.total_students }}</div><div class="stat-label">Total Students</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div><div class="stat-num">{{ stats.placed_students }}</div><div class="stat-label">Placed</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">📈</div>
+          <div>
+            <div class="stat-num">{% if stats.total_students > 0 %}{{ ((stats.placed_students / stats.total_students) * 100)|round(1) }}%{% else %}0%{% endif %}</div>
+            <div class="stat-label">Placement Rate</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🏢</div>
+          <div><div class="stat-num">{{ stats.total_companies }}</div><div class="stat-label">Companies</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">💼</div>
+          <div><div class="stat-num">{{ stats.active_jobs }}</div><div class="stat-label">Active Jobs</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">📋</div>
+          <div><div class="stat-num">{{ stats.total_applications }}</div><div class="stat-label">Applications</div></div>
+        </div>
+      </div>
+
+      <!-- Placement Progress Bar -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;">
+          <h2 style="font-size:1rem;">Placement Progress</h2>
+          <span style="font-size:.875rem;color:#6b7280;">{{ stats.placed_students }} / {{ stats.total_students }} students placed</span>
+        </div>
+        <div class="progress-bar" style="height:10px;">
+          <div class="progress-fill" style="width:{% if stats.total_students > 0 %}{{ ((stats.placed_students / stats.total_students) * 100)|round(1) }}{% else %}0{% endif %}%;background:linear-gradient(90deg,#2563ff,#16a34a);"></div>
+        </div>
+      </div>
+
+      <!-- Recent Applications -->
+      <div class="card">
+        <h2 style="font-size:1.1rem;margin-bottom:1.25rem;">Recent Activity</h2>
+        {% if recent_applications %}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Job</th>
+                <th>Company</th>
+                <th>Status</th>
+                <th>Applied</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in recent_applications %}
+              <tr>
+                <td>{{ a.student_name }}</td>
+                <td>{{ a.title }}</td>
+                <td>{{ a.company_name }}</td>
+                <td><span class="badge badge-{{ a.status }}">{{ a.status }}</span></td>
+                <td style="font-size:.82rem;color:#9ca3af;">{{ a.applied_at[:10] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:2rem;">
+          <div class="empty-icon">📊</div>
+          <h3>No activity yet</h3>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

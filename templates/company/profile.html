@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Company Profile — PlaceIT{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Company Portal</div>
+      </div>
+      <a href="{{ url_for('company_dashboard') }}" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+      <a href="{{ url_for('post_job') }}" class="sidebar-link"><span class="icon">➕</span> Post a Job</a>
+      <a href="{{ url_for('company_profile') }}" class="sidebar-link active"><span class="icon">🏢</span> Company Profile</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Company Profile</div>
+          <div class="page-sub">Update your company information</div>
+        </div>
+      </div>
+      <div class="card" style="max-width:640px;">
+        <form method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Company Name *</label>
+              <input type="text" name="company_name" class="form-control" value="{{ profile.company_name or '' }}" required>
+            </div>
+            <div class="form-group">
+              <label>Industry</label>
+              <select name="industry" class="form-control">
+                {% for ind in ['Technology','Finance','Healthcare','Manufacturing','Consulting','E-commerce','Education','Other'] %}
+                <option {% if profile and profile.industry == ind %}selected{% endif %}>{{ ind }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Website</label>
+            <input type="url" name="website" class="form-control" value="{{ profile.website or '' }}" placeholder="https://yourcompany.com">
+          </div>
+          <div class="form-group">
+            <label>Company Description</label>
+            <textarea name="description" class="form-control">{{ profile.description or '' }}</textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>HR Contact Name</label>
+              <input type="text" name="hr_contact" class="form-control" value="{{ profile.hr_contact or '' }}" placeholder="HR Manager Name">
+            </div>
+            <div class="form-group">
+              <label>HR Phone</label>
+              <input type="text" name="hr_phone" class="form-control" value="{{ profile.hr_phone or '' }}" placeholder="+91 98765 43210">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

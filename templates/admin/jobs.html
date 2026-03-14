@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Jobs — Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Admin Panel</div>
+      </div>
+      <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link"><span class="icon">📊</span> Dashboard</a>
+      <a href="{{ url_for('admin_students') }}" class="sidebar-link"><span class="icon">🎓</span> Students</a>
+      <a href="{{ url_for('admin_companies') }}" class="sidebar-link"><span class="icon">🏢</span> Companies</a>
+      <a href="{{ url_for('admin_jobs') }}" class="sidebar-link active"><span class="icon">💼</span> Jobs</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">All Job Postings</div>
+          <div class="page-sub">{{ jobs|length }} total job listings</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>CGPA Cutoff</th>
+                <th>Applicants</th>
+                <th>Deadline</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for j in jobs %}
+              <tr>
+                <td style="color:#9ca3af;font-size:.82rem;">{{ loop.index }}</td>
+                <td><strong>{{ j.title }}</strong></td>
+                <td>{{ j.company_name }}</td>
+                <td><span class="badge badge-{{ j.job_type }}">{{ j.job_type }}</span></td>
+                <td>{{ j.location or '—' }}</td>
+                <td>{{ j.cgpa_cutoff if j.cgpa_cutoff else '—' }}</td>
+                <td style="text-align:center;font-weight:600;">{{ j.applicant_count }}</td>
+                <td style="font-size:.82rem;">{{ j.deadline or '—' }}</td>
+                <td>
+                  {% if j.is_active %}<span class="badge badge-active">Active</span>
+                  {% else %}<span class="badge badge-inactive">Closed</span>{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

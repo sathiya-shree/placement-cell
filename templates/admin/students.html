@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Students — Admin{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Admin Panel</div>
+      </div>
+      <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link"><span class="icon">📊</span> Dashboard</a>
+      <a href="{{ url_for('admin_students') }}" class="sidebar-link active"><span class="icon">🎓</span> Students</a>
+      <a href="{{ url_for('admin_companies') }}" class="sidebar-link"><span class="icon">🏢</span> Companies</a>
+      <a href="{{ url_for('admin_jobs') }}" class="sidebar-link"><span class="icon">💼</span> Jobs</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">All Students</div>
+          <div class="page-sub">{{ students|length }} registered students</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Branch</th>
+                <th>Year</th>
+                <th>CGPA</th>
+                <th>Applications</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in students %}
+              <tr>
+                <td style="color:#9ca3af;font-size:.82rem;">{{ loop.index }}</td>
+                <td><strong>{{ s.name }}</strong></td>
+                <td style="font-size:.85rem;">{{ s.email }}</td>
+                <td>{{ s.branch or '—' }}</td>
+                <td>{{ s.year or '—' }}</td>
+                <td>{{ s.cgpa or '—' }}</td>
+                <td style="text-align:center;">{{ s.app_count }}</td>
+                <td>
+                  {% if s.is_placed %}<span class="badge badge-selected">Placed</span>
+                  {% elif not s.is_active %}<span class="badge badge-inactive">Inactive</span>
+                  {% else %}<span class="badge badge-active">Active</span>{% endif %}
+                </td>
+                <td>
+                  <form method="POST" action="{{ url_for('toggle_user', user_id=s.id) }}" style="margin:0;display:inline;">
+                    <button class="btn btn-sm btn-outline" type="submit">
+                      {{ 'Enable' if not s.is_active else 'Disable' }}
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

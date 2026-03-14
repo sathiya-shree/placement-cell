@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}My Profile — PlaceIT{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Student Portal</div>
+      </div>
+      <a href="{{ url_for('student_dashboard') }}" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+      <a href="{{ url_for('student_jobs') }}" class="sidebar-link"><span class="icon">💼</span> Browse Jobs</a>
+      <a href="{{ url_for('student_profile') }}" class="sidebar-link active"><span class="icon">👤</span> My Profile</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">My Profile</div>
+          <div class="page-sub">Keep your profile up-to-date to improve placement chances</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:1.5rem;">
+        <!-- Form -->
+        <div class="card">
+          <form method="POST" enctype="multipart/form-data">
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid #e5e4e0;">
+              <div class="profile-avatar">{{ session.name[0].upper() }}</div>
+              <div>
+                <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:700;">{{ session.name }}</div>
+                <div style="color:#6b7280;font-size:.875rem;">{{ session.email }}</div>
+                {% if profile and profile.is_placed %}<span class="badge badge-selected" style="margin-top:4px;">✓ Placed</span>{% endif %}
+              </div>
+            </div>
+
+            <h3 style="font-size:.9rem;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:1rem;">Academic Info</h3>
+            <div class="form-row-3">
+              <div class="form-group">
+                <label>Roll Number</label>
+                <input type="text" name="roll_number" class="form-control" value="{{ profile.roll_number or '' }}" placeholder="21CS001">
+              </div>
+              <div class="form-group">
+                <label>Branch</label>
+                <select name="branch" class="form-control">
+                  {% for b in ['Computer Science','Information Technology','Electronics','Mechanical','Civil','Electrical','Other'] %}
+                  <option {% if profile and profile.branch == b %}selected{% endif %}>{{ b }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Year</label>
+                <select name="year" class="form-control">
+                  {% for y in [1,2,3,4] %}
+                  <option value="{{ y }}" {% if profile and profile.year == y %}selected{% endif %}>{{ y }}{% if y==1 %}st{% elif y==2 %}nd{% elif y==3 %}rd{% else %}th{% endif %} Year</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>CGPA</label>
+                <input type="number" name="cgpa" class="form-control" step="0.01" min="0" max="10" value="{{ profile.cgpa or '' }}" placeholder="8.5">
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="text" name="phone" class="form-control" value="{{ profile.phone or '' }}" placeholder="+91 98765 43210">
+              </div>
+            </div>
+
+            <h3 style="font-size:.9rem;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:1rem;margin-top:.5rem;">Skills & Bio</h3>
+            <div class="form-group">
+              <label>Skills <span style="color:#9ca3af;font-weight:400;">(comma separated)</span></label>
+              <input type="text" name="skills" class="form-control" value="{{ profile.skills or '' }}" placeholder="Python, React, SQL, Machine Learning...">
+            </div>
+            <div class="form-group">
+              <label>Bio</label>
+              <textarea name="bio" class="form-control" placeholder="Tell companies about yourself...">{{ profile.bio or '' }}</textarea>
+            </div>
+
+            <h3 style="font-size:.9rem;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:1rem;margin-top:.5rem;">Links & Resume</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label>LinkedIn URL</label>
+                <input type="url" name="linkedin" class="form-control" value="{{ profile.linkedin or '' }}" placeholder="https://linkedin.com/in/...">
+              </div>
+              <div class="form-group">
+                <label>GitHub URL</label>
+                <input type="url" name="github" class="form-control" value="{{ profile.github or '' }}" placeholder="https://github.com/...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Upload Resume <span style="color:#9ca3af;font-weight:400;">(PDF/DOC, max 5MB)</span></label>
+              <input type="file" name="resume" class="form-control" accept=".pdf,.doc,.docx">
+              {% if profile and profile.resume_path %}
+              <p style="font-size:.82rem;color:#16a34a;margin-top:.35rem;">✓ Resume uploaded: <a href="{{ url_for('serve_resume', filename=profile.resume_path) }}" target="_blank">View current</a></p>
+              {% endif %}
+            </div>
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+          </form>
+        </div>
+
+        <!-- Sidebar Info -->
+        <div>
+          <div class="card" style="margin-bottom:1rem;">
+            <h3 style="font-size:.9rem;margin-bottom:1rem;">Profile Strength</h3>
+            {% set score = 0 %}
+            {% if profile %}
+              {% if profile.cgpa %}{% set score = score + 20 %}{% endif %}
+              {% if profile.skills %}{% set score = score + 20 %}{% endif %}
+              {% if profile.resume_path %}{% set score = score + 25 %}{% endif %}
+              {% if profile.phone %}{% set score = score + 15 %}{% endif %}
+              {% if profile.bio %}{% set score = score + 10 %}{% endif %}
+              {% if profile.linkedin %}{% set score = score + 10 %}{% endif %}
+            {% endif %}
+            <div style="display:flex;justify-content:space-between;font-size:.875rem;margin-bottom:.4rem;">
+              <span>Completion</span><strong>{{ score }}%</strong>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width:{{ score }}%"></div></div>
+            <ul style="margin-top:1rem;font-size:.8rem;color:#6b7280;list-style:none;display:flex;flex-direction:column;gap:.4rem;">
+              <li>{% if profile and profile.cgpa %}✅{% else %}⬜{% endif %} Add CGPA</li>
+              <li>{% if profile and profile.skills %}✅{% else %}⬜{% endif %} Add Skills</li>
+              <li>{% if profile and profile.resume_path %}✅{% else %}⬜{% endif %} Upload Resume</li>
+              <li>{% if profile and profile.phone %}✅{% else %}⬜{% endif %} Add Phone</li>
+              <li>{% if profile and profile.bio %}✅{% else %}⬜{% endif %} Write Bio</li>
+              <li>{% if profile and profile.linkedin %}✅{% else %}⬜{% endif %} Add LinkedIn</li>
+            </ul>
+          </div>
+          <div class="card" style="background:#f0f9ff;border-color:#bae6fd;">
+            <p style="font-size:.82rem;color:#0369a1;line-height:1.6;">
+              💡 <strong>Tip:</strong> Students with complete profiles and resumes are 3x more likely to be shortlisted.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard — PlaceIT{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Student Portal</div>
+      </div>
+      <div class="sidebar-label">Menu</div>
+      <a href="{{ url_for('student_dashboard') }}" class="sidebar-link active"><span class="icon">🏠</span> Dashboard</a>
+      <a href="{{ url_for('student_jobs') }}" class="sidebar-link"><span class="icon">💼</span> Browse Jobs</a>
+      <a href="{{ url_for('student_profile') }}" class="sidebar-link"><span class="icon">👤</span> My Profile</a>
+    </div>
+    <div class="sidebar-section" style="position:absolute;bottom:1rem;left:0;right:0;">
+      <a href="{{ url_for('logout') }}" class="sidebar-link"><span class="icon">🚪</span> Logout</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Good day, {{ session.name }} 👋</div>
+          <div class="page-sub">Here's your placement overview</div>
+        </div>
+        <a href="{{ url_for('student_jobs') }}" class="btn btn-primary">Browse Jobs →</a>
+      </div>
+
+      <!-- Stats -->
+      <div class="card-grid-4" style="margin-bottom:2rem;">
+        <div class="stat-card">
+          <div class="stat-icon blue">📋</div>
+          <div><div class="stat-num">{{ stats.total }}</div><div class="stat-label">Applied</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">⭐</div>
+          <div><div class="stat-num">{{ stats.shortlisted }}</div><div class="stat-label">Shortlisted</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div><div class="stat-num">{{ stats.selected }}</div><div class="stat-label">Selected</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">❌</div>
+          <div><div class="stat-num">{{ stats.rejected }}</div><div class="stat-label">Rejected</div></div>
+        </div>
+      </div>
+
+      <!-- Profile alert -->
+      {% if not profile or not profile.cgpa %}
+      <div class="card" style="background:#fffbeb;border-color:#fde68a;margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <strong>⚠️ Complete your profile</strong>
+            <p style="font-size:.875rem;color:#78350f;margin-top:3px;">Add your CGPA, skills and resume to be eligible for jobs.</p>
+          </div>
+          <a href="{{ url_for('student_profile') }}" class="btn btn-sm" style="background:#fbbf24;color:white;flex-shrink:0;">Update Profile</a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Applications -->
+      <div class="card">
+        <h2 style="font-size:1.1rem;margin-bottom:1.25rem;">My Applications</h2>
+        {% if applications %}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Job Title</th>
+                <th>Company</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Salary</th>
+                <th>Status</th>
+                <th>Applied On</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for app in applications %}
+              <tr>
+                <td><strong>{{ app.title }}</strong></td>
+                <td>{{ app.company_name }}</td>
+                <td><span class="badge badge-{{ app.job_type }}">{{ app.job_type }}</span></td>
+                <td>{{ app.location or '—' }}</td>
+                <td>{{ app.salary or '—' }}</td>
+                <td><span class="badge badge-{{ app.status }}">{{ app.status }}</span></td>
+                <td style="color:#6b7280;font-size:.82rem;">{{ app.applied_at[:10] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:2.5rem;">
+          <div class="empty-icon">📭</div>
+          <h3>No applications yet</h3>
+          <p>Browse open jobs and start applying!</p>
+          <a href="{{ url_for('student_jobs') }}" class="btn btn-primary" style="margin-top:1rem;">Find Jobs</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

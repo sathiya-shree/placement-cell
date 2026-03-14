@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Company Dashboard — PlaceIT{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Company Portal</div>
+      </div>
+      <a href="{{ url_for('company_dashboard') }}" class="sidebar-link active"><span class="icon">🏠</span> Dashboard</a>
+      <a href="{{ url_for('post_job') }}" class="sidebar-link"><span class="icon">➕</span> Post a Job</a>
+      <a href="{{ url_for('company_profile') }}" class="sidebar-link"><span class="icon">🏢</span> Company Profile</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">{{ profile.company_name if profile else session.name }} 👋</div>
+          <div class="page-sub">Manage your job listings and applicants</div>
+        </div>
+        <a href="{{ url_for('post_job') }}" class="btn btn-primary">+ Post New Job</a>
+      </div>
+
+      <div class="card-grid-4" style="margin-bottom:2rem;">
+        <div class="stat-card">
+          <div class="stat-icon blue">💼</div>
+          <div><div class="stat-num">{{ stats.total_jobs }}</div><div class="stat-label">Total Jobs</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div><div class="stat-num">{{ stats.active_jobs }}</div><div class="stat-label">Active</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">📋</div>
+          <div><div class="stat-num">{{ stats.total_applications }}</div><div class="stat-label">Applications</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:1.1rem;margin-bottom:1.25rem;">Your Job Postings</h2>
+        {% if jobs %}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Job Title</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>CGPA</th>
+                <th>Deadline</th>
+                <th>Applicants</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for job in jobs %}
+              <tr>
+                <td><strong>{{ job.title }}</strong></td>
+                <td><span class="badge badge-{{ job.job_type }}">{{ job.job_type }}</span></td>
+                <td>{{ job.location or '—' }}</td>
+                <td>{{ job.cgpa_cutoff or '—' }}</td>
+                <td style="font-size:.82rem;">{{ job.deadline or '—' }}</td>
+                <td>
+                  <a href="{{ url_for('job_applicants', job_id=job.id) }}" style="font-weight:600;color:var(--accent);">
+                    {{ job.applicant_count }} view →
+                  </a>
+                </td>
+                <td>
+                  <span class="badge badge-{% if job.is_active %}active{% else %}inactive{% endif %}">
+                    {{ 'Active' if job.is_active else 'Closed' }}
+                  </span>
+                </td>
+                <td>
+                  <form method="POST" action="{{ url_for('toggle_job', job_id=job.id) }}" style="margin:0;display:inline;">
+                    <button class="btn btn-sm btn-outline" type="submit">
+                      {{ 'Close' if job.is_active else 'Reopen' }}
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:2.5rem;">
+          <div class="empty-icon">📢</div>
+          <h3>No jobs posted yet</h3>
+          <p>Post your first job opening to start receiving applications.</p>
+          <a href="{{ url_for('post_job') }}" class="btn btn-primary" style="margin-top:1rem;">Post a Job</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Login — PlaceIT{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <h1>Place<span>IT</span></h1>
+      <p>Placement Cell Management System</p>
+    </div>
+    <form method="POST">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="you@college.edu" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:.5rem;">Login →</button>
+    </form>
+    <p style="text-align:center;margin-top:1.5rem;font-size:.875rem;color:#6b7280;">
+      Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+    </p>
+    <div style="margin-top:1.5rem;padding:1rem;background:#f9fafb;border-radius:8px;font-size:.78rem;color:#6b7280;">
+    </div>
+  </div>
+</div>
+{% endblock %}

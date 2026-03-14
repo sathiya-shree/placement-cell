@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Browse Jobs — PlaceIT{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Student Portal</div>
+      </div>
+      <a href="{{ url_for('student_dashboard') }}" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+      <a href="{{ url_for('student_jobs') }}" class="sidebar-link active"><span class="icon">💼</span> Browse Jobs</a>
+      <a href="{{ url_for('student_profile') }}" class="sidebar-link"><span class="icon">👤</span> My Profile</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Open Positions</div>
+          <div class="page-sub">{{ jobs|length }} opportunities available</div>
+        </div>
+        <div class="filter-bar">
+          <a href="{{ url_for('student_jobs', type='all') }}" class="filter-chip {% if filter_type == 'all' %}active{% endif %}">All</a>
+          <a href="{{ url_for('student_jobs', type='fulltime') }}" class="filter-chip {% if filter_type == 'fulltime' %}active{% endif %}">Full-time</a>
+          <a href="{{ url_for('student_jobs', type='internship') }}" class="filter-chip {% if filter_type == 'internship' %}active{% endif %}">Internship</a>
+        </div>
+      </div>
+
+      {% if jobs %}
+      <div class="card-grid">
+        {% for job in jobs %}
+        <div class="job-card">
+          <div class="job-card-top">
+            <div>
+              <span class="badge badge-{{ job.job_type }}" style="margin-bottom:.4rem;">{{ job.job_type }}</span>
+              <div class="job-title">{{ job.title }}</div>
+              <div style="font-size:.9rem;color:#6b7280;margin-top:2px;">{{ job.company_name }}</div>
+            </div>
+            {% if job.applied %}<span style="font-size:1.5rem;" title="Applied">✅</span>{% endif %}
+          </div>
+          {% if job.description %}
+          <p style="font-size:.85rem;color:#4b5563;margin-bottom:.5rem;line-height:1.5;">{{ job.description[:120] }}{% if job.description|length > 120 %}...{% endif %}</p>
+          {% endif %}
+          <div class="job-meta">
+            {% if job.location %}<span>📍 {{ job.location }}</span>{% endif %}
+            {% if job.salary %}<span>💰 {{ job.salary }}</span>{% endif %}
+            {% if job.cgpa_cutoff and job.cgpa_cutoff > 0 %}<span>📊 CGPA ≥ {{ job.cgpa_cutoff }}</span>{% endif %}
+            {% if job.deadline %}<span>⏰ {{ job.deadline }}</span>{% endif %}
+          </div>
+          {% if job.requirements %}
+          <div style="font-size:.8rem;color:#6b7280;margin:.5rem 0;">
+            <strong>Requirements:</strong> {{ job.requirements[:80] }}{% if job.requirements|length > 80 %}...{% endif %}
+          </div>
+          {% endif %}
+          <div class="job-footer">
+            <span style="font-size:.78rem;color:#9ca3af;">{{ job.applicant_count }} applicant{{ 's' if job.applicant_count != 1 }}</span>
+            {% if job.applied %}
+              <span class="btn btn-sm btn-outline" style="cursor:default;color:#16a34a;border-color:#bbf7d0;">✓ Applied</span>
+            {% else %}
+              <form method="POST" action="{{ url_for('apply_job', job_id=job.id) }}" style="margin:0;">
+                <button type="submit" class="btn btn-primary btn-sm">Apply Now</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No jobs found</h3>
+        <p>Check back soon for new openings!</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}

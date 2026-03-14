@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Register — PlaceIT{% endblock %}
+{% block body %}
+<div class="auth-page" style="padding:2rem;">
+  <div class="auth-card" style="max-width:520px;">
+    <div class="auth-logo">
+      <h1>Place<span>IT</span></h1>
+      <p>Create your account</p>
+    </div>
+    <form method="POST" id="regForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" name="name" class="form-control" placeholder="Ken" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" class="form-control" placeholder="you@college.edu" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" class="form-control" placeholder="Min 6 chars" required minlength="6">
+        </div>
+        <div class="form-group">
+          <label>Register as</label>
+          <select name="role" class="form-control" id="roleSelect" onchange="toggleFields()">
+            <option value="student">Student</option>
+            <option value="company">Company/Recruiter</option>
+          </select>
+        </div>
+      </div>
+      <div id="studentFields">
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Roll Number</label>
+            <input type="text" name="roll_number" class="form-control" placeholder="21CS001">
+          </div>
+          <div class="form-group">
+            <label>Branch</label>
+            <select name="branch" class="form-control">
+              <option>Computer Science</option>
+              <option>Information Technology</option>
+              <option>Electronics</option>
+              <option>Mechanical</option>
+              <option>Civil</option>
+              <option>Electrical</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Year</label>
+            <select name="year" class="form-control">
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4" selected>4th Year</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="companyFields" style="display:none;">
+        <div class="form-group">
+          <label>Company Name</label>
+          <input type="text" name="company_name" class="form-control" placeholder="Acme Corp">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:.5rem;">Create Account →</button>
+    </form>
+    <p style="text-align:center;margin-top:1.25rem;font-size:.875rem;color:#6b7280;">
+      Already have an account? <a href="{{ url_for('login') }}">Login</a>
+    </p>
+  </div>
+</div>
+<script>
+  function toggleFields() {
+    const role = document.getElementById('roleSelect').value;
+    document.getElementById('studentFields').style.display = role === 'student' ? '' : 'none';
+    document.getElementById('companyFields').style.display = role === 'company' ? '' : 'none';
+  }
+</script>
+{% endblock %}

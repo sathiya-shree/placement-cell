@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Applicants — {{ job.title }}{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Company Portal</div>
+      </div>
+      <a href="{{ url_for('company_dashboard') }}" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+      <a href="{{ url_for('post_job') }}" class="sidebar-link"><span class="icon">➕</span> Post a Job</a>
+      <a href="{{ url_for('company_profile') }}" class="sidebar-link"><span class="icon">🏢</span> Company Profile</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">{{ job.title }}</div>
+          <div class="page-sub">{{ applicants|length }} applicant{{ 's' if applicants|length != 1 }} · {{ job.job_type }} · {{ job.location or 'No location' }}</div>
+        </div>
+        <a href="{{ url_for('company_dashboard') }}" class="btn btn-outline">← Back</a>
+      </div>
+
+      {% if applicants %}
+      <div class="card-grid">
+        {% for ap in applicants %}
+        <div class="card" style="border-left:4px solid {% if ap.status == 'selected' or ap.status == 'offered' %}#16a34a{% elif ap.status == 'shortlisted' %}#d97706{% elif ap.status == 'rejected' %}#dc2626{% else %}#2563ff{% endif %};">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;">
+            <div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;">{{ ap.name }}</div>
+              <div style="font-size:.82rem;color:#6b7280;">{{ ap.email }}</div>
+            </div>
+            <span class="badge badge-{{ ap.status }}">{{ ap.status }}</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.5rem;font-size:.8rem;color:#6b7280;margin-bottom:.75rem;">
+            {% if ap.branch %}<span>🎓 {{ ap.branch }}</span>{% endif %}
+            {% if ap.cgpa %}<span>📊 {{ ap.cgpa }} CGPA</span>{% endif %}
+            {% if ap.year %}<span>📅 Year {{ ap.year }}</span>{% endif %}
+            {% if ap.phone %}<span>📞 {{ ap.phone }}</span>{% endif %}
+          </div>
+          {% if ap.skills %}
+          <div style="font-size:.78rem;margin-bottom:.75rem;">
+            {% for skill in ap.skills.split(',')[:4] %}
+            <span style="background:#f3f4f6;padding:2px 8px;border-radius:10px;margin-right:4px;color:#374151;">{{ skill.strip() }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% if ap.resume_path %}
+          <a href="{{ url_for('serve_resume', filename=ap.resume_path) }}" target="_blank" class="btn btn-outline btn-sm" style="margin-bottom:.75rem;">📄 View Resume</a>
+          {% endif %}
+          <form method="POST" action="{{ url_for('update_application_status', app_id=ap.id) }}">
+            <div style="display:flex;gap:.5rem;align-items:center;">
+              <select name="status" class="form-control" style="flex:1;padding:.35rem .75rem;font-size:.82rem;">
+                {% for s in ['applied','shortlisted','selected','offered','rejected'] %}
+                <option value="{{ s }}" {% if ap.status == s %}selected{% endif %}>{{ s.capitalize() }}</option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-primary btn-sm">Update</button>
+            </div>
+          </form>
+          <div style="font-size:.75rem;color:#9ca3af;margin-top:.5rem;">Applied {{ ap.applied_at[:10] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <h3>No applications yet</h3>
+        <p>Share the job opening to start receiving applications.</p>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% endblock %}

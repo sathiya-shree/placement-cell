@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Post a Job — PlaceIT{% endblock %}
+{% block body %}
+<div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div style="padding:0 0.75rem;margin-bottom:1.5rem;">
+        <div style="font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:white;">Place<span style="color:#ff5c35;">IT</span></div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">Company Portal</div>
+      </div>
+      <a href="{{ url_for('company_dashboard') }}" class="sidebar-link"><span class="icon">🏠</span> Dashboard</a>
+      <a href="{{ url_for('post_job') }}" class="sidebar-link active"><span class="icon">➕</span> Post a Job</a>
+      <a href="{{ url_for('company_profile') }}" class="sidebar-link"><span class="icon">🏢</span> Company Profile</a>
+    </div>
+  </aside>
+  <main class="main-content">
+    <div class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Post a New Job</div>
+          <div class="page-sub">Fill in the details to attract the best candidates</div>
+        </div>
+      </div>
+      <div class="card" style="max-width:720px;">
+        <form method="POST">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Job Title *</label>
+              <input type="text" name="title" class="form-control" placeholder="e.g. Software Engineer" required>
+            </div>
+            <div class="form-group">
+              <label>Job Type *</label>
+              <select name="job_type" class="form-control" required>
+                <option value="fulltime">Full-time</option>
+                <option value="internship">Internship</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Job Description</label>
+            <textarea name="description" class="form-control" placeholder="Describe the role, responsibilities, team culture..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Requirements</label>
+            <textarea name="requirements" class="form-control" placeholder="Skills, experience, qualifications needed..."></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Location</label>
+              <input type="text" name="location" class="form-control" placeholder="Bangalore, Remote, Hybrid...">
+            </div>
+            <div class="form-group">
+              <label>Salary / Stipend</label>
+              <input type="text" name="salary" class="form-control" placeholder="e.g. ₹8-12 LPA or ₹20,000/month">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Minimum CGPA <span style="color:#9ca3af;font-weight:400;">(0 = no cutoff)</span></label>
+              <input type="number" name="cgpa_cutoff" class="form-control" step="0.1" min="0" max="10" value="0" placeholder="7.5">
+            </div>
+            <div class="form-group">
+              <label>Application Deadline</label>
+              <input type="date" name="deadline" class="form-control">
+            </div>
+          </div>
+          <div style="display:flex;gap:1rem;margin-top:.5rem;">
+            <button type="submit" class="btn btn-primary">Post Job →</button>
+            <a href="{{ url_for('company_dashboard') }}" class="btn btn-outline">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}
