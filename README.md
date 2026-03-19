@@ -141,7 +141,7 @@ Login Page:
 (screenshots/login.png)
 
 Company Login Page:
-screenshots/company login.png
+screenshots/company-login.png
 
 Dashboard:
 screenshots/dashboard.png
