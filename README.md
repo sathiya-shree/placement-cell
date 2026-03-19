@@ -133,8 +133,21 @@ Register new student and company accounts via the `/register` page.
 ---
 
 ## Screenshots
+Placeit.png
+screenshots/placeit.png
 
-> Landing page, student dashboard, job listings, company applicant management, admin overview
+
+Login Page:
+screenshots/login.png
+
+Company Login Page:
+screenshots/company login.png
+
+Dashboard:
+screenshots/dashboard.png
+
+jobs.png
+
 
 ---
 
