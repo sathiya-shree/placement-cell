@@ -133,12 +133,12 @@ Register new student and company accounts via the `/register` page.
 ---
 
 ## Screenshots
-Placeit.png
+Placeit.png 
 screenshots/placeit.png
 
 
 Login Page:
-screenshots/login.png
+(screenshots/login.png)
 
 Company Login Page:
 screenshots/company login.png
