@@ -88,16 +88,22 @@ def login():
         email = request.form['email'].strip()
         password = hash_password(request.form['password'])
         conn = get_db()
-        user = db_fetchone(conn, "SELECT * FROM users WHERE email=%s AND password=%s AND is_active=TRUE", (email, password))
-        conn.close()
-        if user:
-            session['user_id'] = user['id']
-            session['name']    = user['name']
-            session['role']    = user['role']
-            session['email']   = user['email']
-            flash(f'Welcome back, {user["name"]}!', 'success')
-            return redirect(url_for('dashboard'))
-        flash('Invalid email or password.', 'danger')
+        try:
+            user = db_fetchone(conn, "SELECT * FROM users WHERE email=%s AND password=%s AND is_active=1", (email, password))
+            if user:
+                session['user_id'] = user['id']
+                session['name']    = user['name']
+                session['role']    = user['role']
+                session['email']   = user['email']
+                flash(f'Welcome back, {user["name"]}!', 'success')
+                conn.close()
+                return redirect(url_for('dashboard'))
+            flash('Invalid email or password.', 'danger')
+        except Exception as e:
+            print(f"Login error: {e}")
+            flash('Login error. Please try again.', 'danger')
+        finally:
+            conn.close()
     return render_template('auth/login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -253,7 +259,7 @@ def student_jobs():
             (SELECT id FROM applications WHERE job_id = j.id AND student_id = %s) AS applied
         FROM jobs j
         JOIN company_profiles cp ON j.company_id = cp.id
-        WHERE j.is_active = TRUE
+        WHERE j.is_active = 1
     """
     params = [student_id]
     if filter_type in ('fulltime', 'internship'):
@@ -276,7 +282,7 @@ def apply_job(job_id):
             flash('Complete your profile first.', 'warning')
             return redirect(url_for('student_profile'))
 
-        job = db_fetchone(conn, "SELECT * FROM jobs WHERE id=%s AND is_active=TRUE", (job_id,))
+        job = db_fetchone(conn, "SELECT * FROM jobs WHERE id=%s AND is_active=1", (job_id,))
         if not job:
             flash('Job not found.', 'danger')
             return redirect(url_for('student_jobs'))
@@ -418,7 +424,7 @@ def update_application_status(app_id):
         if status in ('selected', 'offered'):
             app_row = db_fetchone(conn, "SELECT student_id FROM applications WHERE id=%s", (app_id,))
             if app_row:
-                db_execute(conn, "UPDATE student_profiles SET is_placed=TRUE WHERE id=%s", (app_row['student_id'],))
+                db_execute(conn, "UPDATE student_profiles SET is_placed=1 WHERE id=%s", (app_row['student_id'],))
         conn.commit()
         flash('Application status updated.', 'success')
     except Exception as e:
@@ -454,9 +460,9 @@ def admin_dashboard():
         'total_students':     db_fetchval(conn, "SELECT COUNT(*) FROM users WHERE role='student'"),
         'total_companies':    db_fetchval(conn, "SELECT COUNT(*) FROM users WHERE role='company'"),
         'total_jobs':         db_fetchval(conn, "SELECT COUNT(*) FROM jobs"),
-        'active_jobs':        db_fetchval(conn, "SELECT COUNT(*) FROM jobs WHERE is_active=TRUE"),
+        'active_jobs':        db_fetchval(conn, "SELECT COUNT(*) FROM jobs WHERE is_active=1"),
         'total_applications': db_fetchval(conn, "SELECT COUNT(*) FROM applications"),
-        'placed_students':    db_fetchval(conn, "SELECT COUNT(*) FROM student_profiles WHERE is_placed=TRUE"),
+        'placed_students':    db_fetchval(conn, "SELECT COUNT(*) FROM student_profiles WHERE is_placed=1"),
     }
     recent_applications = db_fetchall(conn, """
         SELECT a.*, j.title, cp.company_name, u.name AS student_name
