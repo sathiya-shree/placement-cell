@@ -88,7 +88,7 @@ def login():
         email = request.form['email'].strip()
         password = hash_password(request.form['password'])
         conn = get_db()
-        user = db_fetchone(conn, "SELECT * FROM users WHERE email=%s AND password=%s AND is_active=1", (email, password))
+        user = db_fetchone(conn, "SELECT * FROM users WHERE email=%s AND password=%s AND is_active=TRUE", (email, password))
         conn.close()
         if user:
             session['user_id'] = user['id']
@@ -137,6 +137,7 @@ def register():
             return redirect(url_for('login'))
         except Exception as e:
             conn.rollback()
+            print(f"Registration error: {e}")
             flash('Email already registered.', 'danger')
         finally:
             conn.close()
@@ -199,6 +200,7 @@ def student_profile():
             f = request.files['resume']
             if f and allowed_file(f.filename):
                 filename = secure_filename(f"resume_{session['user_id']}_{f.filename}")
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
                 f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 resume_path = filename
 
@@ -251,7 +253,7 @@ def student_jobs():
             (SELECT id FROM applications WHERE job_id = j.id AND student_id = %s) AS applied
         FROM jobs j
         JOIN company_profiles cp ON j.company_id = cp.id
-        WHERE j.is_active = 1
+        WHERE j.is_active = TRUE
     """
     params = [student_id]
     if filter_type in ('fulltime', 'internship'):
@@ -268,29 +270,27 @@ def student_jobs():
 @role_required('student')
 def apply_job(job_id):
     conn = get_db()
-    profile = db_fetchone(conn, "SELECT * FROM student_profiles WHERE user_id=%s", (session['user_id'],))
-    if not profile:
-        flash('Complete your profile first.', 'warning')
-        conn.close()
-        return redirect(url_for('student_profile'))
-
-    job = db_fetchone(conn, "SELECT * FROM jobs WHERE id=%s AND is_active=1", (job_id,))
-    if not job:
-        flash('Job not found.', 'danger')
-        conn.close()
-        return redirect(url_for('student_jobs'))
-
-    if job['cgpa_cutoff'] and profile['cgpa'] and float(profile['cgpa']) < float(job['cgpa_cutoff']):
-        flash(f'CGPA requirement is {job["cgpa_cutoff"]}. You are not eligible.', 'warning')
-        conn.close()
-        return redirect(url_for('student_jobs'))
-
     try:
+        profile = db_fetchone(conn, "SELECT * FROM student_profiles WHERE user_id=%s", (session['user_id'],))
+        if not profile:
+            flash('Complete your profile first.', 'warning')
+            return redirect(url_for('student_profile'))
+
+        job = db_fetchone(conn, "SELECT * FROM jobs WHERE id=%s AND is_active=TRUE", (job_id,))
+        if not job:
+            flash('Job not found.', 'danger')
+            return redirect(url_for('student_jobs'))
+
+        if job['cgpa_cutoff'] and profile['cgpa'] and float(profile['cgpa']) < float(job['cgpa_cutoff']):
+            flash(f'CGPA requirement is {job["cgpa_cutoff"]}. You are not eligible.', 'warning')
+            return redirect(url_for('student_jobs'))
+
         db_execute(conn, "INSERT INTO applications (job_id, student_id) VALUES (%s,%s)", (job_id, profile['id']))
         conn.commit()
         flash('Application submitted!', 'success')
-    except Exception:
+    except Exception as e:
         conn.rollback()
+        print(f"Application error: {e}")
         flash('Already applied to this job.', 'info')
     finally:
         conn.close()
@@ -355,24 +355,31 @@ def post_job():
     conn = get_db()
     cp   = db_fetchone(conn, "SELECT * FROM company_profiles WHERE user_id=%s", (session['user_id'],))
     if request.method == 'POST':
-        db_execute(conn, """
-            INSERT INTO jobs
-                (company_id, title, description, requirements, job_type, location, salary, cgpa_cutoff, deadline)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        """, (cp['id'],
-              request.form['title'],
-              request.form['description'],
-              request.form.get('requirements', ''),
-              request.form['job_type'],
-              request.form.get('location', ''),
-              request.form.get('salary', ''),
-              request.form.get('cgpa_cutoff', 0),
-              request.form.get('deadline', '')))
-        conn.commit()
-        flash('Job posted successfully!', 'success')
+        try:
+            db_execute(conn, """
+                INSERT INTO jobs
+                    (company_id, title, description, requirements, job_type, location, salary, cgpa_cutoff, deadline)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (cp['id'],
+                  request.form['title'],
+                  request.form['description'],
+                  request.form.get('requirements', ''),
+                  request.form['job_type'],
+                  request.form.get('location', ''),
+                  request.form.get('salary', ''),
+                  request.form.get('cgpa_cutoff', 0),
+                  request.form.get('deadline', '')))
+            conn.commit()
+            flash('Job posted successfully!', 'success')
+            return redirect(url_for('company_dashboard'))
+        except Exception as e:
+            conn.rollback()
+            print(f"Post job error: {e}")
+            flash('Error posting job. Please try again.', 'danger')
+        finally:
+            conn.close()
+    else:
         conn.close()
-        return redirect(url_for('company_dashboard'))
-    conn.close()
     return render_template('company/post_job.html')
 
 @app.route('/company/jobs/<int:job_id>/applicants')
@@ -406,14 +413,20 @@ def update_application_status(app_id):
     status = request.form['status']
     notes  = request.form.get('notes', '')
     conn   = get_db()
-    db_execute(conn, "UPDATE applications SET status=%s, notes=%s WHERE id=%s", (status, notes, app_id))
-    if status in ('selected', 'offered'):
-        app_row = db_fetchone(conn, "SELECT student_id FROM applications WHERE id=%s", (app_id,))
-        if app_row:
-            db_execute(conn, "UPDATE student_profiles SET is_placed=1 WHERE id=%s", (app_row['student_id'],))
-    conn.commit()
-    conn.close()
-    flash('Application status updated.', 'success')
+    try:
+        db_execute(conn, "UPDATE applications SET status=%s, notes=%s WHERE id=%s", (status, notes, app_id))
+        if status in ('selected', 'offered'):
+            app_row = db_fetchone(conn, "SELECT student_id FROM applications WHERE id=%s", (app_id,))
+            if app_row:
+                db_execute(conn, "UPDATE student_profiles SET is_placed=TRUE WHERE id=%s", (app_row['student_id'],))
+        conn.commit()
+        flash('Application status updated.', 'success')
+    except Exception as e:
+        conn.rollback()
+        print(f"Update status error: {e}")
+        flash('Error updating status.', 'danger')
+    finally:
+        conn.close()
     return redirect(request.referrer or url_for('company_dashboard'))
 
 @app.route('/company/jobs/<int:job_id>/toggle', methods=['POST'])
@@ -421,9 +434,14 @@ def update_application_status(app_id):
 @role_required('company')
 def toggle_job(job_id):
     conn = get_db()
-    db_execute(conn, "UPDATE jobs SET is_active = 1 - is_active WHERE id=%s", (job_id,))
-    conn.commit()
-    conn.close()
+    try:
+        db_execute(conn, "UPDATE jobs SET is_active = NOT is_active WHERE id=%s", (job_id,))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Toggle job error: {e}")
+    finally:
+        conn.close()
     return redirect(url_for('company_dashboard'))
 
 # ─── Admin Routes ─────────────────────────────────────────────────────────────
@@ -436,9 +454,9 @@ def admin_dashboard():
         'total_students':     db_fetchval(conn, "SELECT COUNT(*) FROM users WHERE role='student'"),
         'total_companies':    db_fetchval(conn, "SELECT COUNT(*) FROM users WHERE role='company'"),
         'total_jobs':         db_fetchval(conn, "SELECT COUNT(*) FROM jobs"),
-        'active_jobs':        db_fetchval(conn, "SELECT COUNT(*) FROM jobs WHERE is_active=1"),
+        'active_jobs':        db_fetchval(conn, "SELECT COUNT(*) FROM jobs WHERE is_active=TRUE"),
         'total_applications': db_fetchval(conn, "SELECT COUNT(*) FROM applications"),
-        'placed_students':    db_fetchval(conn, "SELECT COUNT(*) FROM student_profiles WHERE is_placed=1"),
+        'placed_students':    db_fetchval(conn, "SELECT COUNT(*) FROM student_profiles WHERE is_placed=TRUE"),
     }
     recent_applications = db_fetchall(conn, """
         SELECT a.*, j.title, cp.company_name, u.name AS student_name
@@ -505,9 +523,14 @@ def admin_jobs():
 @role_required('admin')
 def toggle_user(user_id):
     conn = get_db()
-    db_execute(conn, "UPDATE users SET is_active = 1 - is_active WHERE id=%s", (user_id,))
-    conn.commit()
-    conn.close()
+    try:
+        db_execute(conn, "UPDATE users SET is_active = NOT is_active WHERE id=%s", (user_id,))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        print(f"Toggle user error: {e}")
+    finally:
+        conn.close()
     return redirect(request.referrer or url_for('admin_dashboard'))
 
 @app.route('/resume/<filename>')
