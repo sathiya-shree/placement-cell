@@ -121,7 +121,7 @@ Hosted on Render with Supabase PostgreSQL as the database.
 
 ### 🏠 Home Page
 
-![Home](./screenshots/placeit.png)
+![Home](./screenshots/company_dashboard.png)
 
 ### 🔐 Login Page
 
