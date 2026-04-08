@@ -135,10 +135,9 @@ Hosted on Render with Supabase PostgreSQL as the database.
 
 ![Home](./screenshots/company_dashboard.png)
 
-
 ### 💼 Jobs Page
 
-![Jobs](./screenshots/jobs.png)
+![Jobs](./screenshots/jobs-student.png)
 
 ---
 
