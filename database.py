@@ -31,7 +31,7 @@ def init_db():
             password TEXT NOT NULL,
             role TEXT NOT NULL CHECK(role IN ('student','company','admin')),
             created_at TIMESTAMP DEFAULT NOW(),
-            is_active BOOLEAN DEFAULT TRUE
+            is_active INTEGER DEFAULT 1
         )
     ''')
 
@@ -49,7 +49,7 @@ def init_db():
             linkedin TEXT,
             github TEXT,
             bio TEXT,
-            is_placed BOOLEAN DEFAULT FALSE,
+            is_placed INTEGER DEFAULT 0,
             FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
         )
     ''')
@@ -81,7 +81,7 @@ def init_db():
             salary TEXT,
             cgpa_cutoff REAL DEFAULT 0.0,
             deadline TEXT,
-            is_active BOOLEAN DEFAULT TRUE,
+            is_active INTEGER DEFAULT 1,
             created_at TIMESTAMP DEFAULT NOW(),
             FOREIGN KEY(company_id) REFERENCES company_profiles(id) ON DELETE CASCADE
         )
@@ -215,7 +215,7 @@ def init_db():
                 INSERT INTO jobs (company_id, title, description, requirements, job_type, location, salary, cgpa_cutoff, deadline, is_active)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id
-            """, (company_ids[company_name], title, desc, req, jtype, loc, sal, cgpa, deadline, True))
+            """, (company_ids[company_name], title, desc, req, jtype, loc, sal, cgpa, deadline, 1))
             job_ids.append(c.fetchone()['id'])
 
     # Seed sample applications with various statuses
@@ -257,7 +257,7 @@ def init_db():
                 pass  # Skip if duplicate
 
     # Mark some students as placed
-    c.execute("UPDATE student_profiles SET is_placed = TRUE WHERE id IN (%s, %s)", 
+    c.execute("UPDATE student_profiles SET is_placed = 1 WHERE id IN (%s, %s)", 
               (student_ids.get("Priya Singh", 0), student_ids.get("Kavya Nair", 0)))
 
     conn.commit()
