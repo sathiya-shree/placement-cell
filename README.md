@@ -121,7 +121,7 @@ Hosted on Render with Supabase PostgreSQL as the database.
 
 ### 🏠 Home Page
 
-![Home](./screenshots/company_dashboard.png)
+![Home](./screenshots/start-page.png)
 
 ### 🔐 Login Page
 
@@ -130,6 +130,10 @@ Hosted on Render with Supabase PostgreSQL as the database.
 ### 🏢 Company Login Page
 
 ![Company Login](./screenshots/company-login.png)
+
+### 🏢 Company Dashboard
+
+![Home](./screenshots/company_dashboard.png)
 
 
 ### 💼 Jobs Page
